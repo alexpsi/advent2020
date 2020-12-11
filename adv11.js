@@ -134,7 +134,7 @@ const getNext = (diagram) => {
 const compareDiagrams = (diagram, newDiagram) => JSON.stringify(diagram) === JSON.stringify(newDiagram)
 
 const converge = (diagram) => {
-    printDiagram(diagram)
+    // printDiagram(diagram)
     const nextDiagram = getNext(diagram);
 
     if (compareDiagrams(diagram, nextDiagram)) {
