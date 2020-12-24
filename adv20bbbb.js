@@ -15,18 +15,17 @@ const transpose = _m => {
 }
 
 const rotateCCW = m => transpose(m).reverse();
-const rotateCW = m => transpose(m.reverse());
 const flip = m => m.map(l => l.reverse())
 
-const onlyUnique = (value, index, self) => self.indexOf(value) === index;
+const rotateCW = m => flip(transpose(m));
 
+const onlyUnique = (value, index, self) => self.indexOf(value) === index;
 const uniq = a => a.filter(onlyUnique);
 
-
-const getRightBorder = (m) => m.map(x => x[x.length -1]).join('');
-const getLeftBorder = (m) => m.map(x => x[0]).join('');
+const getRightBorder = (m) => transpose(m)[m.length - 1].join('');
+const getLeftBorder = (m) => transpose(m)[0].join('');
 const getTopBorder = (m) => m[0].join('');
-const getBottomBorder = (m) =>  m[m.length - 1].join('');
+const getBottomBorder = (m) =>  m[m.length - 1].reverse().join('');
 const getBorders = m => [getTopBorder(m), getRightBorder(m), getBottomBorder(m), getLeftBorder(m)]
 
 const printTile = m => m.map(l => console.log(l.join('')))
@@ -45,10 +44,10 @@ const printMap = fMap => {
 }
 
 
-const matchingTile = (idy, idx, dir = 0, fMap) => {
-    const [key, tile] = fMap[idy][idx];
+const matchingTile = (tile, rest, dir) => {
     const border = getBorders(tile)[dir];
-    return getRest(fMap).filter(k => k !== key).map(candidateKey => {
+    console.log(border)
+    return rest.map(candidateKey => {
         let rCW = 0;
         let candidate = input[candidateKey];
         while (rCW < 4) {
@@ -62,38 +61,24 @@ const matchingTile = (idy, idx, dir = 0, fMap) => {
     }).filter(x => x)[0]
 }
 
-const getOpenFor = (fMap, idy, idx) => {
-    const open = [];
-    if (fMap[idy][idx].length === 0) return open;
-    open.push(fMap[idy - 1][idx].length === 0 ? [[-1, 0], 0] : false)
-    open.push(fMap[idy][idx + 1].length === 0 ? [[ 0, 1], 1] : false)
-    open.push(fMap[idy + 1][idx].length === 0 ? [[ 1, 0], 2] : false)
-    open.push(fMap[idy][idx - 1].length === 0 ? [[0, -1], 3] : false)
-    return open.filter(x => x);
-}
+const expandTile = (fMap) => {
+    let rest = getRest(fMap)
+    if (rest.length === 0) return fMap;
+    for (let idy = 0; idy < 1; idy++) {
+        for (let idx = 0; idx < fMap[0].length - 1; idx++) {
+            console.log(idx, idy)
+            const match = matchingTile(fMap[idy][idx][1], rest, 1)
+            fMap[idy][idx + 1] = match;
+            printMap(fMap)
 
-const expandTile = (fMap, expanded = []) => {
-    printMap(fMap)
-    if (expanded.length === 144) return fMap;
-    for (let idy = 0; idy < fMap[0].length; idy++) {
-        for (let idx = 0; idx < fMap[0].length; idx++) {
-            let didExpand = false;
-            getOpenFor(fMap, idy, idx).forEach(dir => {
-                const match = matchingTile(idy, idx, dir[1], fMap)
-                if (match) {
-                    fMap[idy + dir[0][0]][idx + dir[0][1]] = match;
-                    didExpand = true;
-                }
-            })
-            if (didExpand) {
-                return expandTile(fMap, expanded.concat(fMap[idy][idx][0]));
-            }
+            rest =  getRest(fMap)
         }
     }
+
 }
 
-let fullMap = new Array(30).fill([]).map(x => new Array(30).fill([]))
-fullMap[15][15] = [corners[0], (input[corners[0]])];
+let fullMap = new Array(12).fill([]).map(x => new Array(12).fill([]))
+fullMap[0][0] = [corners[3], input[corners[3]]];
 expandTile(fullMap) 
 
 
